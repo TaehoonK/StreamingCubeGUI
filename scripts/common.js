@@ -16,7 +16,8 @@ var dimensionNames = new Array();
 var latticeNodeDims = new Array();
 var latticeNodeIDs = new Array();
 var httpPostRequestStatus = new Array();
-var postURLAndPort = "http://192.168.0.150:8085/";
+var postURLAndPort = "http://localhost:8080";
+//var postURLAndPort = "http://192.168.0.150:8085/";
 //var postURLAndPort = "http://130.158.76.30:8085/";
 
 function initializeOLAPGUI() 
@@ -291,7 +292,7 @@ function httpPostRequest(postCommand, requestBody, callbackFunction, callbackArg
 	}
 	else // One-time Execution
 	{		
-		var postURL = postURLAndPort + postCommand;
+		var postURL = postURLAndPort; /*+ postCommand;*/
 		var xhr = new XMLHttpRequest();
 		xhr.open("POST",postURL,true);
 		xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");  
@@ -312,12 +313,13 @@ function httpPostRequest(postCommand, requestBody, callbackFunction, callbackArg
 			if(xhr.readyState == 4 && xhr.status == 200)        
 			{	
 				var xhrResponseText = xhr.responseText;
-				//console.log(xhrResponseText);			
+				console.log(xhrResponseText);
 				//throb.stop();	
 				callbackFunction.apply(this,[callbackArgument, xhrResponseText]);
 			}
 		};
-		xhr.send(requestBody.replace(/(\r\n|\n|\r)/gm,""));
+		//xhr.send(requestBody.replace(/(\r\n|\n|\r)/gm,""));
+		xhr.send();
 	}
 }
 
