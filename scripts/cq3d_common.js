@@ -10,7 +10,9 @@ var httpPostRequestStatus = new Array();
 var jsonResultArray = new Array();
 var mmsTrajectory = new Array();
 var postURLAndPort = "http://localhost:8080";
-
+var mapOptions;
+var map;
+var marker;
 
 function initializeOLAPGUI() {
     document.getElementById("btnStop").disabled = true;
@@ -183,20 +185,65 @@ function Coordinate (lat, long) {
 
 function drawMapInfo(jsonData, elementID)
 {
-    var lat = jsonData.latitude;
-    var long = jsonData.longitude;
-    var coord = new Coordinate (lat, long);
+    var Y_point = jsonData.latitude;
+    var X_point = jsonData.longitude;
+    var myLatlng = new google.maps.LatLng(Y_point, X_point);
 
-    if(contains(mmsTrajectory,coord)) {
+    if(contains(mmsTrajectory,myLatlng)) {
         return;
     }
     else {
         // 1. 맵에 마커 찍기
         // 2. mmsTrajectory 배열 내 마지막 좌표와 입력된 좌표 간에 선(Line) 그리기
+         mmsTrajectory.push(myLatlng);
+         var zoomLevel       = 21;               // 지도의 확대 레벨 : 숫자가 클수록 확대정도가 큼
+         var markerTitle     = "Position";      // 현재 위치 마커에 마우스를 오버을때 나타나는 정보
+         var markerMaxWidth  = 200;              // 마커를 클릭했을때 나타나는 말풍선의 최대 크기
 
-        mmsTrajectory.push(coord);
+         var contentString   = '<div>' + //Can input detected object information
+                 '<p>This is test</p>' +
+                 '</div>';
+
+
+        if(isFirstPeriodicExecution) {
+
+            mapOptions = {
+                            zoom: zoomLevel,
+                            center: myLatlng,
+                            disableDefaultUI: true,
+                            mapTypeId: google.maps.MapTypeId.ROADMAP
+            }
+
+            map = new google.maps.Map(document.getElementById('divMapLocation'), mapOptions);
+
+            marker = new google.maps.Marker({
+                          position: myLatlng,
+                          map: map,
+                          title: markerTitle
+            });
+            var infowindow = new google.maps.InfoWindow(
+            {
+                 content: contentString,
+                 maxWizzzdth: markerMaxWidth
+            });
+
+            isFirstPeriodicExecution = false;
+        }
+
+        marker = new google.maps.Marker({
+                          position: myLatlng,
+                          map: map,
+                          title: markerTitle
+        });
+
+        map.setCenter(marker.getPosition());
+
+        google.maps.event.addListener(marker, 'click', function() {
+               infowindow.open(map, marker);
+        });
     }
 }
+
 
 function contains(arr, element) {
     for (var i = 0; i < arr.length; i++) {
@@ -207,43 +254,3 @@ function contains(arr, element) {
     return false;
 }
 
-$(document).ready(function () { //for test, 추후 콜->로딩으로 수정
-
-//function geoMap(lat, long) { //for real-program, 호출할때 lat, long 인자를 json에서 파싱
-    var lat = 49.009277193963; //temporal coord for test
-    var long = 8.4375064260665; //temporal coord for test
-
-    var myLatlng = new google.maps.LatLng(lat,long); // 위치값 위도 경도
-    var Y_point         = lat;        // Y 좌표
-    var X_point         = long;       // X 좌표
-    var zoomLevel       = 17;               // 지도의 확대 레벨 : 숫자가 클수록 확대정도가 큼
-    var markerTitle     = "Position";      // 현재 위치 마커에 마우스를 오버을때 나타나는 정보
-    var markerMaxWidth  = 200;              // 마커를 클릭했을때 나타나는 말풍선의 최대 크기
-
-// 말풍선 내용
-    var contentString   = '<div>' + //Can input detected object information
-        '<p>This is test</p>' +
-        '</div>';
-    var myLatlng = new google.maps.LatLng(Y_point, X_point);
-    var mapOptions = {
-        zoom: zoomLevel,
-        center: myLatlng,
-        disableDefaultUI: true,
-        mapTypeId: google.maps.MapTypeId.ROADMAP
-    }
-    var map = new google.maps.Map(document.getElementById('divMapLocation'), mapOptions);
-    var marker = new google.maps.Marker({
-        position: myLatlng,
-        map: map,
-        title: markerTitle
-    });
-    var infowindow = new google.maps.InfoWindow(
-        {
-            content: contentString,
-            maxWizzzdth: markerMaxWidth
-        }
-    );
-    google.maps.event.addListener(marker, 'click', function() {
-        infowindow.open(map, marker);
-    });
-});
