@@ -8,6 +8,7 @@ var latticeNodeDims = new Array();
 var latticeNodeIDs = new Array();
 var httpPostRequestStatus = new Array();
 var jsonResultArray = new Array();
+var mmsTrajectory = new Array();
 var postURLAndPort = "http://localhost:8080";
 
 
@@ -147,10 +148,13 @@ function httpPostRequestCb(callbackArgument, xhrResponseText)
         //JSONObj.queryResult.sort( function(a, b) { return parseFloat(a.timestamp) - parseFloat(b.timestamp); } );
 
         // Table need to be updated every time, no matter if it isFirstPeriodicExecution
-        //displayAsTable(jsonResultArray, "divTable");
+        displayAsTable(jsonResultArray, "divTable");
 
         // Chart also need to be updated every time (graphs.js)
         //drawChart(jsonResultArray);
+
+        // Draw the trajectory of MMS car info
+        drawMapInfo(JSONObj, "divMapLocation");
 
         /*
         if(isFirstPeriodicExecution)
@@ -170,6 +174,37 @@ function displayAsTable(jsonData, elementID)
     document.getElementById(elementID).innerHTML = "";
     document.getElementById(elementID).appendChild(buildHtmlTable(jsonData));
     document.getElementById(elementID).style.border = "1px solid black";
+}
+
+function Coordinate (lat, long) {
+    this.lat = lat;
+    this.long = long;
+}
+
+function drawMapInfo(jsonData, elementID)
+{
+    var lat = jsonData.latitude;
+    var long = jsonData.longitude;
+    var coord = new Coordinate (lat, long);
+
+    if(contains(mmsTrajectory,coord)) {
+        return;
+    }
+    else {
+        // 1. 맵에 마커 찍기
+        // 2. mmsTrajectory 배열 내 마지막 좌표와 입력된 좌표 간에 선(Line) 그리기
+
+        mmsTrajectory.push(coord);
+    }
+}
+
+function contains(arr, element) {
+    for (var i = 0; i < arr.length; i++) {
+        if (arr[i].lat === element.lat && arr[i].long == element.long) {
+            return true;
+        }
+    }
+    return false;
 }
 
 $(document).ready(function () { //for test, 추후 콜->로딩으로 수정
