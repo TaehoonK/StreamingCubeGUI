@@ -158,6 +158,8 @@ function httpPostRequestCb(callbackArgument, xhrResponseText)
         // Draw the trajectory of MMS car info
         drawMapInfo(JSONObj, "divMapLocation");
 
+        // Draw the object detected image
+        drawImage(JSONObj.file_name, "divImageDisplay");
         /*
         if(isFirstPeriodicExecution)
         {
@@ -178,9 +180,15 @@ function displayAsTable(jsonData, elementID)
     document.getElementById(elementID).style.border = "1px solid black";
 }
 
-function Coordinate (lat, long) {
-    this.lat = lat;
-    this.long = long;
+function drawImage (image_name, elementID)
+{
+    //var getURLAndPort = postURLAndPort;
+    //var imageURL = getURLAndPort + "?id=" + image_name + "_1";
+    var imageURL = "images/mms/" + image_name + "_2.jpg";
+    var imgElem = document.createElement("img");
+    imgElem.setAttribute("src", imageURL);
+    document.getElementById(elementID).innerHTML = "";
+    document.getElementById(elementID).appendChild(imgElem);
 }
 
 function drawMapInfo(jsonData, elementID)
