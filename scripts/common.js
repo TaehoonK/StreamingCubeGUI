@@ -30,11 +30,11 @@ function initializeOLAPGUI()
     clockwise: true
 	});
 	throb.appendTo(document.getElementById('throbberDiv'));
-	
-	document.getElementById("btnPause").disabled = true;					
+
+	document.getElementById("btnPause").disabled = true;
 	document.getElementById("btnStop").disabled = true;		
 	document.getElementById("divChartButtons").style.visibility = 'hidden';
-	
+
 	//Populating lattice node list (Query list)
 	httpPostRequest("OLAPGetLattice", "NoTextToSend", httpPostRequestCb, "latticeNodeList");
 }
