@@ -7,6 +7,7 @@ var dimensionNames = new Array();
 var latticeNodeDims = new Array();
 var latticeNodeIDs = new Array();
 var httpPostRequestStatus = new Array();
+var jsonResultArray = new Array();
 var postURLAndPort = "http://localhost:8080";
 
 
@@ -141,14 +142,15 @@ function httpPostRequestCb(callbackArgument, xhrResponseText)
         }
         */
         var JSONObj = JSON.parse(xhrResponseText);
+        jsonResultArray.push(JSONObj);
         // Sorting result w.r.t. timestamp
         //JSONObj.queryResult.sort( function(a, b) { return parseFloat(a.timestamp) - parseFloat(b.timestamp); } );
 
         // Table need to be updated every time, no matter if it isFirstPeriodicExecution
-        displayAsTable(JSONObj, "divTable");
+        //displayAsTable(jsonResultArray, "divTable");
 
         // Chart also need to be updated every time (graphs.js)
-        //drawChart(JSONObj);
+        //drawChart(jsonResultArray);
 
         /*
         if(isFirstPeriodicExecution)
@@ -166,6 +168,47 @@ function httpPostRequestCb(callbackArgument, xhrResponseText)
 function displayAsTable(jsonData, elementID)
 {
     document.getElementById(elementID).innerHTML = "";
-    document.getElementById(elementID).appendChild(addHtmlTable(jsonData));
+    document.getElementById(elementID).appendChild(buildHtmlTable(jsonData));
     document.getElementById(elementID).style.border = "1px solid black";
 }
+
+$(document).ready(function () { //for test, 추후 콜->로딩으로 수정
+
+//function geoMap(lat, long) { //for real-program, 호출할때 lat, long 인자를 json에서 파싱
+    var lat = 49.009277193963; //temporal coord for test
+    var long = 8.4375064260665; //temporal coord for test
+
+    var myLatlng = new google.maps.LatLng(lat,long); // 위치값 위도 경도
+    var Y_point         = lat;        // Y 좌표
+    var X_point         = long;       // X 좌표
+    var zoomLevel       = 17;               // 지도의 확대 레벨 : 숫자가 클수록 확대정도가 큼
+    var markerTitle     = "Position";      // 현재 위치 마커에 마우스를 오버을때 나타나는 정보
+    var markerMaxWidth  = 200;              // 마커를 클릭했을때 나타나는 말풍선의 최대 크기
+
+// 말풍선 내용
+    var contentString   = '<div>' + //Can input detected object information
+        '<p>This is test</p>' +
+        '</div>';
+    var myLatlng = new google.maps.LatLng(Y_point, X_point);
+    var mapOptions = {
+        zoom: zoomLevel,
+        center: myLatlng,
+        disableDefaultUI: true,
+        mapTypeId: google.maps.MapTypeId.ROADMAP
+    }
+    var map = new google.maps.Map(document.getElementById('divMapLocation'), mapOptions);
+    var marker = new google.maps.Marker({
+        position: myLatlng,
+        map: map,
+        title: markerTitle
+    });
+    var infowindow = new google.maps.InfoWindow(
+        {
+            content: contentString,
+            maxWizzzdth: markerMaxWidth
+        }
+    );
+    google.maps.event.addListener(marker, 'click', function() {
+        infowindow.open(map, marker);
+    });
+});
