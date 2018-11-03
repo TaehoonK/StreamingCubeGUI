@@ -204,7 +204,7 @@ function drawMapInfo(jsonData, elementID)
         // 1. 맵에 마커 찍기
         // 2. mmsTrajectory 배열 내 마지막 좌표와 입력된 좌표 간에 선(Line) 그리기
          mmsTrajectory.push(myLatlng);
-         var zoomLevel       = 21;               // 지도의 확대 레벨 : 숫자가 클수록 확대정도가 큼
+         var zoomLevel       = 20;               // 지도의 확대 레벨 : 숫자가 클수록 확대정도가 큼
          var markerTitle     = "Position";      // 현재 위치 마커에 마우스를 오버을때 나타나는 정보
          var markerMaxWidth  = 200;              // 마커를 클릭했을때 나타나는 말풍선의 최대 크기
 
