@@ -8,14 +8,18 @@ var _td_ = document.createElement('td');
  function buildHtmlTable(arr) {
      var table = _table_.cloneNode(false),
         columns = addAllColumnHeaders(arr, table);
-     for (var i=0, maxi=arr.length; i < maxi; i++)
+
+     var maxi=arr.length;
+
+     for (var i=maxi-1; i > -1; --i)
 	 {
        var tr = _tr_.cloneNode(false);
       //   for (var j=0, maxj=columns.length; j < maxj ; ++j)
        for (var j=0; j < 4 ; j++)
 		 {
              var td = _td_.cloneNode(false);
-             cellValue = arr[i][columns[j]];
+          //   cellValue = arr[i][columns[j]];
+
              td.appendChild(document.createTextNode(arr[i][columns[j]] || ''));
              tr.appendChild(td);
          }
@@ -35,9 +39,9 @@ var _td_ = document.createElement('td');
  function addAllColumnHeaders(arr, table)
  {
      var columnSet = [],
-         tr = _tr_.cloneNode(false);
-
-       for (var i=0, l=arr.length; i < l; i++) {
+       tr = _tr_.cloneNode(false);
+       var l = arr.length;
+       for (var i=l-1; i>-1; --i) {
          for (var key in arr[i]) {
              if (arr[i].hasOwnProperty(key) && columnSet.indexOf(key)===-1)
              {

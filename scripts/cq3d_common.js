@@ -155,6 +155,7 @@ function httpPostRequestCb(callbackArgument, xhrResponseText)
         // Chart also need to be updated every time (graphs.js)
         //drawChart(jsonResultArray);
 
+
         // Draw the trajectory of MMS car info
         drawMapInfo(JSONObj, "divMapLocation");
 
