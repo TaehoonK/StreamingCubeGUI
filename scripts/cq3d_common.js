@@ -1,7 +1,7 @@
 
 var periodicQueryExecutionID;
 var callbackArgumentGlobal;
-var queryExecutionInterval = 1000; // 1 second = 1000
+var queryExecutionInterval = 500; // 1 second = 1000
 var isFirstPeriodicExecution = true;
 var dimensionNames = new Array();
 var latticeNodeDims = new Array();
@@ -13,6 +13,7 @@ var postURLAndPort = "http://localhost:8080";
 var mapOptions;
 var map;
 var marker;
+var windowOpen = null;
 
 function initializeOLAPGUI() {
     document.getElementById("btnStop").disabled = true;
@@ -153,7 +154,8 @@ function httpPostRequestCb(callbackArgument, xhrResponseText)
         displayAsTable(jsonResultArray, "divTable");
 
         // Chart also need to be updated every time (graphs.js)
-        //drawChart(jsonResultArray);
+        //drawChart(jsonResultArray, "divSimpleChart");
+        drawChart(jsonResultArray, "divSimpleChart");
 
 
         // Draw the trajectory of MMS car info
@@ -171,6 +173,7 @@ function httpPostRequestCb(callbackArgument, xhrResponseText)
             document.getElementById("divChartButtons").style.visibility = 'visible';
         }
         */
+
     }
 }
 
@@ -181,6 +184,20 @@ function displayAsTable(jsonData, elementID)
     document.getElementById(elementID).style.border = "1px solid black";
 }
 
+/* Draw Chart test */
+function drawChart(jsonData, elementID){
+    // document.getElementById(elementID).innerHTML = "";
+    // document.getElementById(elementID).appendChild(drawAnnotations(jsonData));
+    google.charts.load('current', {packages: ['corechart']});
+    google.charts.setOnLoadCallback(drawAnnotations(jsonData, elementID));
+
+
+}
+// function drawChart(jsonData){
+//     drawAnnotations(jsonData);
+// }
+/* END */
+
 function drawImage (image_name, elementID)
 {
     //var getURLAndPort = postURLAndPort;
@@ -188,6 +205,8 @@ function drawImage (image_name, elementID)
     var imageURL = "images/mms/" + image_name + "_2.jpg";
     var imgElem = document.createElement("img");
     imgElem.setAttribute("src", imageURL);
+    imgElem.setAttribute("class", "images");
+    imgElem.setAttribute("style", "width: 100%;")
     document.getElementById(elementID).innerHTML = "";
     document.getElementById(elementID).appendChild(imgElem);
 }
@@ -196,6 +215,10 @@ function drawMapInfo(jsonData, elementID)
 {
     var Y_point = jsonData.latitude;
     var X_point = jsonData.longitude;
+    var predictionID = jsonData.prediction_id;
+    var objectType = jsonData.object_type;
+    var lat = Y_point.toString();
+    var lon = X_point.toString();
     var myLatlng = new google.maps.LatLng(Y_point, X_point);
 
     if(contains(mmsTrajectory,myLatlng)) {
@@ -205,14 +228,16 @@ function drawMapInfo(jsonData, elementID)
         // 1. 맵에 마커 찍기
         // 2. mmsTrajectory 배열 내 마지막 좌표와 입력된 좌표 간에 선(Line) 그리기
          mmsTrajectory.push(myLatlng);
-         var zoomLevel       = 20;               // 지도의 확대 레벨 : 숫자가 클수록 확대정도가 큼
-         var markerTitle     = "Position";      // 현재 위치 마커에 마우스를 오버을때 나타나는 정보
+         var zoomLevel       = 18;               // 지도의 확대 레벨 : 숫자가 클수록 확대정도가 큼
+         var markerTitle     = predictionID.toString();    // 현재 위치 마커에 마우스를 오버을때 나타나는 정보
          var markerMaxWidth  = 200;              // 마커를 클릭했을때 나타나는 말풍선의 최대 크기
 
-         var contentString   = '<div>' + //Can input detected object information
-                 '<p>This is test</p>' +
+         var contentString   = '<div>' +
+                 '<p>type : '+objectType+'</p>' +
+                 '<p>number : '+markerTitle+'</p>' +
+                 '<p>lat : '+lat+'</p>' +
+                 '<p>lon : '+lon+'</p>' +
                  '</div>';
-
 
         if(isFirstPeriodicExecution) {
 
@@ -223,43 +248,61 @@ function drawMapInfo(jsonData, elementID)
                             mapTypeId: google.maps.MapTypeId.ROADMAP
             }
 
-            map = new google.maps.Map(document.getElementById('divMapLocation'), mapOptions);
+            map = new google.maps.Map(document.getElementById(elementID), mapOptions);
 
-            marker = new google.maps.Marker({
-                          position: myLatlng,
-                          map: map,
-                          title: markerTitle
-            });
-            var infowindow = new google.maps.InfoWindow(
-            {
-                 content: contentString,
-                 maxWizzzdth: markerMaxWidth
-            });
+            // marker = new google.maps.Marker({
+            //               position: myLatlng,
+            //               map: map,
+            //               title: markerTitle
+            // });
+            // var infowindow = new google.maps.InfoWindow(
+            // {
+            //      content: contentString,
+            //      maxWizzzdth: markerMaxWidth
+            // });
 
             isFirstPeriodicExecution = false;
         }
 
+        var infowindow = new google.maps.InfoWindow({
+            content: contentString,
+            maxWizzzdth: markerMaxWidth
+        });
+
         marker = new google.maps.Marker({
                           position: myLatlng,
                           map: map,
-                          title: markerTitle
+                          title: markerTitle,
+                          info: infowindow
         });
 
         map.setCenter(marker.getPosition());
-
-        google.maps.event.addListener(marker, 'click', function() {
-               infowindow.open(map, marker);
-        });
     }
+    google.maps.event.addListener(marker, 'click', function() {
+        if(windowOpen != null){
+            windowOpen.close();
+            windowOpen = null;
+        }
+        (this.info).open(map, this);
+        windowOpen = this.info;
+    });
 }
 
 
 function contains(arr, element) {
     for (var i = 0; i < arr.length; i++) {
-        if (arr[i].lat === element.lat && arr[i].long == element.long) {
+        if (arr[i].lat === element.lat && arr[i].long === element.long) {
             return true;
         }
     }
     return false;
 }
 
+function containsG(arr, element) {
+    for (var i = 0; i < arr.length; i++) {
+        if (arr[i][0] === element[0][0]) {
+            return true;
+        }
+    }
+    return false;
+}
