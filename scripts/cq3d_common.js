@@ -14,6 +14,7 @@ var mapOptions;
 var map;
 var marker;
 var windowOpen = null;
+var selectGraph;
 
 function initializeOLAPGUI() {
     document.getElementById("btnStop").disabled = true;
