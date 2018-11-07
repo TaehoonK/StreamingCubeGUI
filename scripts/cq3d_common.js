@@ -188,8 +188,22 @@ function displayAsTable(jsonData, elementID)
 function drawChart(jsonData, elementID){
     // document.getElementById(elementID).innerHTML = "";
     // document.getElementById(elementID).appendChild(drawAnnotations(jsonData));
-    google.charts.load('current', {packages: ['corechart']});
-    google.charts.setOnLoadCallback(drawAnnotations(jsonData, elementID));
+    var btnTime = document.getElementById('btnTime');
+    var btnWindow = document.getElementById('btnWindow');
+    var btnPie = document.getElementById('btnPie');
+    btnTime.onclick = function(){
+        selectGraph = btnTime.value;    
+    }
+    btnWindow.onclick = function(){
+        selectGraph = btnWindow.value;    
+    }
+    btnPie.onclick = function(){
+        selectGraph = btnPie.value;    
+    }
+   
+   
+    google.charts.load('current', {packages: ['corechart', 'bar']});
+    google.charts.setOnLoadCallback(drawingGraphs(jsonData, elementID, selectGraph));
 
 
 }
