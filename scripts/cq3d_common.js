@@ -16,6 +16,11 @@ var marker;
 var windowOpen = null;
 var selectGraph;
 
+// add the kafka server connecting
+var kafkaServerPort = "http://150.82.218.237:8080/";
+var checkConnection = false;
+//
+
 function initializeOLAPGUI() {
     document.getElementById("btnStop").disabled = true;
     document.getElementById("divChartButtons").style.visibility = 'hidden';
@@ -33,7 +38,8 @@ function executeStop()
 {
     document.getElementById("btnSubmit").disabled = false;
     document.getElementById("btnStop").disabled = true;
-
+    //checkConnection = false;
+    //httpPostRequest("Stop");
     clearInterval(periodicQueryExecutionID);
 }
 
@@ -53,6 +59,67 @@ function executeQuery(queryType)
         alert("Invalid Query Type.");
     }
 }
+
+// function executeQuery(queryType) {
+//     document.getElementById("btnSubmit").disabled = false;
+//     document.getElementById("btnStop").disabled = true;
+
+//     if (queryType == "btnSubmit") {
+//         httpPostRequest("SparkQuery");
+       
+//     }
+//     else {
+//         httpPostRequest("ClearKafkaTopic");
+//     }
+// }
+
+// function httpPostRequest(postCommand) {
+   
+//     if(postCommand == "SparkQuery") 
+//     {
+//         // var params = makeQueryJson();
+//         var params = JSON.stringify({"dataStream": "0009", "objType": "car", "predAccLow": "0.5", "predAccHigh": "0.8", "winSize": "10", "winSlideStep": "10", "queryDuraion":"2000"});
+// 	}
+// 	else if(postCommand == "Stop")
+// 	{
+// 		var params = ""		
+// 	}
+// 	else if(postCommand == "ClearKafkaTopic")
+// 	{
+// 		var params = JSON.stringify({"topicName": "test"});
+// 	}
+    
+//     // Generating Post Request	
+//     var postURL = kafkaServerPort + postCommand; /*+ postCommand;*/
+//     var xhr = new XMLHttpRequest();
+
+//     xhr.open("POST", postURL, true);
+//     xhr.setRequestHeader("Content-type", "application/json");
+
+//     xhr.onerror = function () {
+//         console.log("Network error: Server not available!");
+//         clearInterval(periodicQueryExecutionID);
+//         return;
+//     };
+
+//     xhr.onreadystatechange = function () {
+//         if (xhr.readyState == 4 && xhr.status == 200) {
+//             var xhrResponseText = xhr.responseText;
+//             checkConnection = true;
+//             console.log(xhrResponseText);
+//         }
+//     };
+//     //xhr.send(requestBody.replace(/(\r\n|\n|\r)/gm,""));
+
+//     xhr.send(params);
+
+//     // if (checkConnection) {
+//     //     var requestBody = "getKafkaResults";
+//     //     httpPostRequest("OLAPQuery", requestBody, httpPostRequestCb, "OLAPQueryResult");
+//     // }
+
+// }
+
 
 function httpPostRequest(postCommand, requestBody, callbackFunction, callbackArgument)
 {
@@ -185,33 +252,28 @@ function displayAsTable(jsonData, elementID)
     document.getElementById(elementID).style.border = "1px solid black";
 }
 
-/* Draw Chart test */
-function drawChart(jsonData, elementID){
-    // document.getElementById(elementID).innerHTML = "";
-    // document.getElementById(elementID).appendChild(drawAnnotations(jsonData));
+function drawChart(jsonData, elementID) {
     var btnTime = document.getElementById('btnTime');
     var btnWindow = document.getElementById('btnWindow');
     var btnPie = document.getElementById('btnPie');
-    btnTime.onclick = function(){
-        selectGraph = btnTime.value;    
+    
+    google.charts.load('current', { packages: ['corechart', 'bar'] });
+
+    btnTime.onclick = function () {
+        selectGraph = btnTime.value;
+        google.charts.setOnLoadCallback(drawingGraphs(jsonData, elementID, selectGraph));
     }
-    btnWindow.onclick = function(){
-        selectGraph = btnWindow.value;    
+    btnWindow.onclick = function () {
+        selectGraph = btnWindow.value;
+        google.charts.setOnLoadCallback(drawingGraphs(jsonData, elementID, selectGraph));
     }
-    btnPie.onclick = function(){
-        selectGraph = btnPie.value;    
+    btnPie.onclick = function () {
+        selectGraph = btnPie.value;
+        google.charts.setOnLoadCallback(drawingGraphs(jsonData, elementID, selectGraph));
     }
-   
-   
-    google.charts.load('current', {packages: ['corechart', 'bar']});
+
     google.charts.setOnLoadCallback(drawingGraphs(jsonData, elementID, selectGraph));
-
-
 }
-// function drawChart(jsonData){
-//     drawAnnotations(jsonData);
-// }
-/* END */
 
 function drawImage (image_name, elementID)
 {
@@ -313,11 +375,50 @@ function contains(arr, element) {
     return false;
 }
 
-function containsG(arr, element) {
-    for (var i = 0; i < arr.length; i++) {
-        if (arr[i][0] === element[0][0]) {
-            return true;
-        }
+function makeQueryJson() {
+    var dataStreamType = $("#drilldownList option:selected").text();
+    var count = 0;
+    var objectTypeCar = "car";
+    var objectTypeCyclist = "cyclist";
+    var objectTypePedestrian = "pedestrian";
+    var objType = new Object();
+    var carChecked = $("input:checkbox[id='carCheckbox']").is(":checked");
+	var cyclistChecked = $("input:checkbox[id='cyclistCheckbox']").is(":checked");
+	var pedestrianChecked = $("input:checkbox[id='pedestrianCheckbox']").is(":checked");
+    var keyArray = ['Val1', 'Val2', 'Val3'];
+
+    if (carChecked) {
+        objType[keyArray[count]] = objectTypeCar;
+        count++;
+    }   
+    if (cyclistChecked) {
+        objType[keyArray[count]] = objectTypeCyclist;
+        count++;
     }
-    return false;
+    if (pedestrianChecked) {
+        objType[keyArray[count]] = objectTypePedestrian;
+        count++;
+    }
+    if(!carChecked && !cyclistChecked && !pedestrianChecked){
+        objType[keyArray[0]] = objectTypeCar;
+    }
+    var predAccLow = ($('#accuracySliding').slider("values", 0)).toString();
+    var predAccHigh = ($('#accuracySliding').slider("values", 1)).toString();
+    var winSlideStep = ($('#windowSliding').slider("values", 0)).toString();
+    var winSize = ($('#windowSliding').slider("values", 1)).toString();
+    var queryDuration = ($('#queryDuration').slider("value") * 10).toString();
+
+    var params = JSON.stringify(
+        {
+            "dataStream": dataStreamType,
+            "objType": objType,
+            "predAccLow": predAccLow,
+            "predAccHigh": predAccHigh,
+            "winSize": winSize,
+            "winSlideStep": winSlideStep,
+            "queryDuration": queryDuration
+        }
+    );
+    count = 0;
+    return params;
 }
