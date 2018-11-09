@@ -14,7 +14,7 @@ var mapOptions;
 var map;
 var marker;
 var windowOpen = null;
-var selectGraph;
+var selectGraph = "timeGraphs";
 
 // add the kafka server connecting
 var kafkaServerPort = "http://150.82.218.237:8080/";
