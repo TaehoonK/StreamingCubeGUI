@@ -340,7 +340,15 @@ function drawMapInfo(jsonData, elementID)
 
             isFirstPeriodicExecution = false;
         }
-
+	
+        var markerPath = new google.maps.Polyline({
+            path: mmsTrajectory,
+            geodesic: true,
+            strokeColor: '#FF0000',
+            strokeOpacity: 1.0,
+            strokeWeight: 2
+        });
+	    
         var infowindow = new google.maps.InfoWindow({
             content: contentString,
             maxWizzzdth: markerMaxWidth
@@ -352,7 +360,7 @@ function drawMapInfo(jsonData, elementID)
                           title: markerTitle,
                           info: infowindow
         });
-
+	markerPath.setMap(map);
         map.setCenter(marker.getPosition());
     }
     google.maps.event.addListener(marker, 'click', function() {
