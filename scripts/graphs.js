@@ -88,7 +88,7 @@ function drawingGraphs(jsonData, elementID, graphsType) {
 			indexValue.push(timeKey);
 			if (carChecked) {
 				if(!carMap.has(timeKey)){
-					indexValue.push(0);
+					indexValue.push(0);//test value 10
 				}
 				else{
 					indexValue.push(carMap.get(timeKey));
@@ -96,7 +96,7 @@ function drawingGraphs(jsonData, elementID, graphsType) {
 			}
 			if (cyclistChecked) {
 				if(!cyclistMap.has(timeKey)){
-					indexValue.push(0);
+					indexValue.push(0);//test value 10
 				}
 				else{
 					indexValue.push(cyclistMap.get(timeKey));
@@ -104,7 +104,7 @@ function drawingGraphs(jsonData, elementID, graphsType) {
 			}
 			if (pedestrianChecked) {
 				if(!pedestrianMap.has(timeKey)){
-					indexValue.push(0);
+					indexValue.push(0);//test value 10
 				}
 				else{
 					indexValue.push(pedestrianMap.get(timeKey));
@@ -129,7 +129,7 @@ function drawingGraphs(jsonData, elementID, graphsType) {
 				title: 'TIME',
 				gridlines:{count: 0}
 			},
-			colors: ['#1b9e77', '#d95f02', '#7570b3']
+			colors: ['#1b9e77', '#d95f02', '#7570b3'] // change color
 		};
 		chart = new google.charts.Bar(document.getElementById(elementID));
 		chart.draw(data, google.charts.Bar.convertOptions(options));
@@ -242,7 +242,7 @@ function drawingGraphs(jsonData, elementID, graphsType) {
 				//gridlines:{count: 1},
 				ticks: windowTick
 			},
-			colors: ['#1b9e77', '#d95f02', '#7570b3']
+			colors: ['#1b9e77', '#d95f02', '#7570b3']// change color
 		};
 		chart = new google.visualization.SteppedAreaChart(document.getElementById(elementID));
 		chart.draw(data, options);
@@ -252,13 +252,13 @@ function drawingGraphs(jsonData, elementID, graphsType) {
 		pieMap.set('Type', 'Count');
 		
 		if (carChecked) {
-			pieMap.set('car', 0);
+			pieMap.set('car', 0); //test value 10
 		}
 		if (cyclistChecked) {
-			pieMap.set('cyclist', 0);
+			pieMap.set('cyclist', 0);//test value 10
 		}
 		if (pedestrianChecked) {
-			pieMap.set('pedestrian', 0);
+			pieMap.set('pedestrian', 0);//test value 10
 		}
 		for (var i = 0; i < maxi - 1; i++) {
 			if(pieMap.has(jsonData[i][keyType])){
@@ -274,7 +274,7 @@ function drawingGraphs(jsonData, elementID, graphsType) {
 			height: '95%',
 			title: "PIE GRAPH",
 			pie: { groupWidth: '50%' },	
-			colors: ['#1b9e77', '#d95f02', '#7570b3']
+			colors: ['#1b9e77', '#d95f02', '#7570b3']// change color
 		};
 		data = google.visualization.arrayToDataTable(DataSet);
 		chart = new google.visualization.PieChart(document.getElementById(elementID));
